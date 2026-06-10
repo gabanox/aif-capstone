@@ -48,15 +48,20 @@ un asistente, clasificador, generador o sistema RAG que resuelva un problema **r
    Botón verde **`<> Code`** → pestaña **Codespaces** → **Create codespace on main**.
    El contenedor instala solo Claude Code, `uv`, AWS CLI y los MCP servers (~2-3 min).
 
-2. **Configura el secret de Bedrock** → ver [sección siguiente](#-configura-tu-acceso-a-bedrock).
+2. **Configura el secret de Bedrock** (asistente IA) → ver [sección siguiente](#-configura-tu-acceso-a-bedrock).
 
-3. **Verifica que todo funciona** (en la terminal del Codespace):
+3. **Configura el acceso AWS para desplegar** (S3/Lambda/API GW/CloudFront…) →
+   ver [`docs/AWS-DEPLOY-ACCESS.md`](docs/AWS-DEPLOY-ACCESS.md). Sin esto, `aws s3 ls`
+   y cualquier deploy fallan (el token de Bedrock NO sirve para eso, es solo para el modelo).
+
+4. **Verifica que todo funciona** (en la terminal del Codespace):
    ```bash
-   aws bedrock list-foundation-models --query 'length(modelSummaries)' --output text
    claude --version
+   AWS_PROFILE=capstone aws sts get-caller-identity   # acceso de deploy (rol scoped 3h)
+   AWS_PROFILE=capstone aws s3 ls                      # debe listar sin error
    ```
 
-4. **Lanza Claude Code y arranca:**
+5. **Lanza Claude Code y arranca:**
    ```bash
    claude
    ```
@@ -84,8 +89,14 @@ Tu facilitador te entregará un **token de Bedrock** (empieza con `ABSK...`). Gu
 Verifica el acceso:
 ```bash
 echo $AWS_BEARER_TOKEN_BEDROCK | cut -c1-8   # debe imprimir: ABSKYmVk
-aws bedrock list-foundation-models --query 'modelSummaries[?contains(modelId,`claude`)].modelId' --output text
+# Prueba real del modelo (el bearer token cubre runtime, no control-plane):
+aws bedrock-runtime converse \
+  --model-id us.anthropic.claude-haiku-4-5-20251001-v1:0 \
+  --messages '[{"role":"user","content":[{"text":"ping"}]}]' \
+  --inference-config '{"maxTokens":5}' --region us-east-1
 ```
+> Nota: `aws bedrock list-foundation-models` es *control-plane* y puede fallar aunque el
+> token funcione — usa el `converse` de arriba (o simplemente lanza `claude`) para verificar.
 
 Detalle técnico y modelos disponibles: [`docs/CODESPACES-BEDROCK.md`](docs/CODESPACES-BEDROCK.md).
 
@@ -196,7 +207,8 @@ Rúbrica detallada y criterios de evaluación: [`specs/00-capstone-brief.md`](sp
 |---|---|
 | `API Error: 400 ... Expected 'thinking'... but found 'text'` | Bug de Claude Code sobre Bedrock. El `devcontainer.json` ya lo mitiga con `MAX_THINKING_TOKENS=0`. Si lo ves, reinicia el Codespace. Detalle: [`docs/CODESPACES-BEDROCK.md`](docs/CODESPACES-BEDROCK.md). |
 | `is not available for this account` al usar un modelo | Ese modelo no está habilitado en la cuenta. Usa `/model` y elige uno disponible (sonnet-4-6, opus-4-5, haiku-4-5). |
-| `Unable to locate credentials` | Falta el secret `AWS_BEARER_TOKEN_BEDROCK`. Configúralo y reinicia el Codespace. |
+| `Unable to locate credentials` al desplegar (`aws s3 ls`, `aws lambda`, MCP de AWS) | Falta el acceso de **deploy**. Configura `CAPSTONE_ROLE_ARN` + credencial base y reinicia → [`docs/AWS-DEPLOY-ACCESS.md`](docs/AWS-DEPLOY-ACCESS.md). El bearer token de Bedrock NO firma estos comandos. |
+| Claude Code no conecta a Bedrock | Falta/expiró `AWS_BEARER_TOKEN_BEDROCK`. Configúralo y reinicia el Codespace. |
 | `/mcp` no muestra los servers | `uv` no quedó en el PATH. Corre `source ~/.bashrc` y reinicia `claude`. |
 | `claude: command not found` | Re-corre `bash .devcontainer/post-create.sh`. |
 
