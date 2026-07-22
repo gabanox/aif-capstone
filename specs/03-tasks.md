@@ -19,7 +19,7 @@
 - [x] **B1.** Implementar función `invoke_bedrock(messages)` que llama Converse API con el system prompt, historial y manejo de fallback a modelo secundario · _(ref: RF-1, RF-5, diseño §4)_
   - Criterio: la función retorna el texto de respuesta; ante `modelId` inválido, reintenta con haiku y avisa al usuario.
 
-- [ ] **B2.** Implementar loop principal del CLI: mostrar disclaimer, leer input, acumular historial, imprimir respuesta; detectar `salir`/`exit` · _(ref: RF-1, RF-2, RF-4, RNF-2, diseño §4)_
+- [x] **B2.** Implementar loop principal del CLI: mostrar disclaimer, leer input, acumular historial, imprimir respuesta; detectar `salir`/`exit` · _(ref: RF-1, RF-2, RF-4, RNF-2, diseño §4)_
   - Criterio: sesión multi-turno funciona; `echo "salir" | python src/hr_assistant.py` termina con código 0; una pregunta de seguimiento obtiene respuesta contextualizada.
 
 - [ ] **B3.** Implementar manejo de errores: credencial ausente (abortar con código 1), throttling (retry con backoff), `ClientError` genérico (imprimir y continuar), entrada vacía (ignorar) · _(ref: RNF-4, diseño §5)_

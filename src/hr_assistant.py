@@ -72,3 +72,64 @@ def invoke_bedrock(messages: list) -> str:
             if code in ("ValidationException", "ResourceNotFoundException") and attempt == 0:
                 continue
             raise
+
+
+DISCLAIMER = (
+    "=" * 60 + "\n"
+    "Asistente de Recursos Humanos — HR Assistant\n"
+    "Este asistente es orientativo. Para decisiones formales,\n"
+    "consulta directamente con el equipo de RRHH.\n"
+    "Escribe 'salir' o 'exit' para terminar.\n"
+    + "=" * 60
+)
+
+
+def main():
+    import os
+    import sys
+
+    # Verificar credencial antes de crear el cliente (manejo completo en B3)
+    if not os.environ.get("AWS_BEARER_TOKEN_BEDROCK"):
+        print("Error: falta la variable de entorno AWS_BEARER_TOKEN_BEDROCK", file=sys.stderr)
+        sys.exit(1)
+
+    global _client
+    _client = boto3.client("bedrock-runtime", region_name="us-east-1")
+
+    print(DISCLAIMER)
+
+    history = []  # historial de la sesión: lista de {role, content}
+
+    while True:
+        try:
+            user_input = input("\nTú: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nHasta luego.")
+            sys.exit(0)
+
+        if user_input.lower() in ("salir", "exit"):
+            print("Hasta luego.")
+            sys.exit(0)
+
+        if not user_input:
+            print("Por favor escribe una pregunta.")
+            continue
+
+        history.append({"role": "user", "content": [{"text": user_input}]})
+
+        try:
+            answer = invoke_bedrock(history)
+        except ClientError as e:
+            code = e.response["Error"]["Code"]
+            msg = e.response["Error"]["Message"]
+            print(f"[Error Bedrock] {code}: {msg}")
+            # Revertir el mensaje del usuario para no contaminar el historial
+            history.pop()
+            continue
+
+        history.append({"role": "assistant", "content": [{"text": answer}]})
+        print(f"\nAsistente: {answer}")
+
+
+if __name__ == "__main__":
+    main()
