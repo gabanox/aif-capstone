@@ -139,15 +139,44 @@ reporta al correo etica@empresa.com y puede derivar en proceso disciplinario.
 Precios de referencia para Claude Sonnet 4.6 vía Amazon Bedrock cross-region inference (us-east-1),
 según [documentación de precios de Amazon Bedrock](https://aws.amazon.com/bedrock/pricing/):
 
+### Estimación inicial (fase Plan)
+
 | Componente | Supuesto de volumen | Precio unitario | Costo estimado |
 |------------|---------------------|-----------------|----------------|
 | Input tokens (Sonnet 4.6) | 50 turnos × 800 tokens sistema+historial | ~$3.00 / 1M tokens | ~$0.00012 |
 | Output tokens (Sonnet 4.6) | 50 turnos × 300 tokens respuesta | ~$15.00 / 1M tokens | ~$0.00023 |
 | **Total estimado (desarrollo + demo)** | 50 turnos totales | | **< $0.01 USD** |
 
-> El costo es insignificante para una sesión de demo. El principal control de costo es
-> `maxTokens=1024` (RNF-6) que limita la salida por turno.
-> Haiku 4.5 como respaldo tiene un costo ~10x menor si fuera necesario.
+### Medición real (fase D2 — 2026-07-22)
+
+Sesión representativa de 8 turnos medida con `response["usage"]` de la Converse API:
+
+| Turno | Input tokens | Output tokens | Observación |
+|-------|-------------|---------------|-------------|
+| 1 | 524 | 129 | Primera pregunta (sin historial previo) |
+| 2 | 680 | 174 | Follow-up contextualizado (historial acumula) |
+| 3 | 872 | 146 | — |
+| 4 | 1 041 | 184 | — |
+| 5 | 1 246 | 101 | — |
+| 6 | 1 367 | 150 | — |
+| 7 | 1 532 | 39 | Pregunta off-topic → respuesta corta de derivación |
+| 8 | 1 588 | 104 | — |
+| **Total** | **8 850** | **1 027** | |
+
+| Componente | Tokens reales | Precio unitario | Costo real |
+|------------|---------------|-----------------|------------|
+| Input tokens | 8 850 | $3.00 / 1M | $0.000027 |
+| Output tokens | 1 027 | $15.00 / 1M | $0.000015 |
+| **Total sesión de 8 turnos** | | | **$0.000042 USD** |
+
+**Costo por turno promedio:** ~$0.0000053 USD  
+**Extrapolando a 50 turnos:** ~$0.000264 USD — dentro del presupuesto estimado de < $0.01 USD.
+
+> Nota: el input crece con cada turno porque se envía el historial completo. En sesiones muy
+> largas (> 100 turnos) conviene implementar truncación del historial antiguo. Para el MVP
+> de demo esto no aplica.
+
+> `maxTokens=1024` (RNF-6) limita la salida por turno y es el principal control de costo.
 
 ---
 

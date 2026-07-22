@@ -52,8 +52,9 @@
     - RNF-5 PASS — grep en archivos rastreados: solo menciones documentales, cero valores reales
     - RNF-6 PASS — `MAX_TOKENS = 1024` visible en `src/hr_assistant.py:13`
 
-- [ ] **D2.** Documentar costo real observado (tokens usados en las pruebas) y comparar con la estimación de diseño §8 · _(ref: diseño §8)_
+- [x] **D2.** Documentar costo real observado (tokens usados en las pruebas) y comparar con la estimación de diseño §8 · _(ref: diseño §8)_
   - Criterio: tabla de costo real en `specs/02-design.md` actualizada.
+  - Resultado (2026-07-22): sesión de 8 turnos = 8 850 input + 1 027 output tokens → $0.000042 USD. Estimación inicial < $0.01 USD confirmada; costo real es ~240× menor que el tope estimado.
 
 - [ ] **D3.** Escribir `README.md` del proyecto con: qué hace, cómo instalarlo (`uv pip install -r requirements.txt`), cómo ejecutarlo, variables de entorno requeridas · _(ref: entregables)_
   - Criterio: un colaborador nuevo puede correr el proyecto siguiendo solo el README.
