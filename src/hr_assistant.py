@@ -1,7 +1,10 @@
 # HR Assistant — Asistente conversacional de RRHH sobre Amazon Bedrock
 
+import boto3
+from botocore.exceptions import ClientError
+
 MODEL_PRIMARY = "us.anthropic.claude-sonnet-4-6"
-MODEL_FALLBACK = "us.anthropic.claude-haiku-4-5-20251001"
+MODEL_FALLBACK = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 
 MAX_TOKENS = 1024
 TEMPERATURE = 0.3
@@ -36,3 +39,36 @@ padres. Licencia por enfermedad: ilimitada con certificado médico.
 [Código de conducta] Todo empleado debe mantener un trato respetuoso. El incumplimiento se
 reporta al correo etica@empresa.com y puede derivar en proceso disciplinario.
 --- FIN DE POLÍTICAS ---"""
+
+# Cliente Bedrock compartido por la sesión (se crea una sola vez en main)
+_client = None
+
+
+def invoke_bedrock(messages: list) -> str:
+    """Invoca la Converse API con el historial completo.
+
+    Intenta MODEL_PRIMARY; si no está disponible, reintenta con MODEL_FALLBACK.
+    Retorna el texto de respuesta del modelo.
+    Propaga ClientError para que el caller lo maneje (throttling, errores genéricos).
+    """
+    system = [{"text": SYSTEM_PROMPT}]
+    inference_cfg = {"maxTokens": MAX_TOKENS, "temperature": TEMPERATURE}
+
+    for attempt, model_id in enumerate((MODEL_PRIMARY, MODEL_FALLBACK)):
+        try:
+            response = _client.converse(
+                modelId=model_id,
+                messages=messages,
+                system=system,
+                inferenceConfig=inference_cfg,
+            )
+            if attempt > 0:
+                print(f"[Aviso] Usando modelo alternativo: {model_id}")
+            return response["output"]["message"]["content"][0]["text"]
+
+        except ClientError as e:
+            code = e.response["Error"]["Code"]
+            # Solo hace fallback si el modelo no está disponible en la cuenta
+            if code in ("ValidationException", "ResourceNotFoundException") and attempt == 0:
+                continue
+            raise

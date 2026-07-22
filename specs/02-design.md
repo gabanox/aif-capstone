@@ -36,7 +36,7 @@ Fuente: arquitectura derivada de la [documentación oficial de Converse API](htt
 ## 2. Modelo de Amazon Bedrock
 
 - **Modelo primario:** `us.anthropic.claude-sonnet-4-6`
-- **Modelo de respaldo:** `us.anthropic.claude-haiku-4-5-20251001`
+- **Modelo de respaldo:** `us.anthropic.claude-haiku-4-5-20251001-v1:0`
 - **API:** Converse API (`bedrock-runtime.converse`)
 - **Justificación:** Claude Sonnet 4.6 ofrece la mejor relación calidad/costo para conversación en español sobre un dominio acotado. Haiku 4.5 como respaldo garantiza disponibilidad si Sonnet no está habilitado en la cuenta compartida. Ambos son modelos de la familia Anthropic disponibles vía cross-region inference profile con prefijo `us.`.
 - **Parámetros de inferencia:**

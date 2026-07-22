@@ -16,7 +16,7 @@
 
 ## Fase B — Funcionalidad central
 
-- [ ] **B1.** Implementar función `invoke_bedrock(messages)` que llama Converse API con el system prompt, historial y manejo de fallback a modelo secundario · _(ref: RF-1, RF-5, diseño §4)_
+- [x] **B1.** Implementar función `invoke_bedrock(messages)` que llama Converse API con el system prompt, historial y manejo de fallback a modelo secundario · _(ref: RF-1, RF-5, diseño §4)_
   - Criterio: la función retorna el texto de respuesta; ante `modelId` inválido, reintenta con haiku y avisa al usuario.
 
 - [ ] **B2.** Implementar loop principal del CLI: mostrar disclaimer, leer input, acumular historial, imprimir respuesta; detectar `salir`/`exit` · _(ref: RF-1, RF-2, RF-4, RNF-2, diseño §4)_
@@ -55,4 +55,4 @@
 
 | Fecha | Tarea | Qué cambió respecto al plan | Spec actualizada |
 |-------|-------|------------------------------|------------------|
-| | | | |
+| 2026-07-22 | B1 | `MODEL_FALLBACK` necesita sufijo `-v1:0` (`us.anthropic.claude-haiku-4-5-20251001-v1:0`); sin él, Bedrock retorna `ValidationException` | `specs/02-design.md` §2, `specs/00-capstone-brief.md` §6 |

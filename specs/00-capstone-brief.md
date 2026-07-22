@@ -53,7 +53,7 @@ system prompt, lo que simplifica el alcance y evita costos adicionales de vector
 | Amazon Bedrock (modelo `us.anthropic.claude-sonnet-4-6`) | Inferencia conversacional vía Converse API |
 | AWS IAM | Rol con permisos mínimos: solo `bedrock:InvokeModel` |
 
-> Modelo de respaldo si claude-sonnet-4-6 no está disponible: `us.anthropic.claude-haiku-4-5-20251001`
+> Modelo de respaldo si claude-sonnet-4-6 no está disponible: `us.anthropic.claude-haiku-4-5-20251001-v1:0`
 
 ## 7. Consideraciones de IA Responsable (dominio 4)
 
