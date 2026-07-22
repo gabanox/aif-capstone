@@ -178,13 +178,13 @@ claude            # lanza Claude Code en el Codespace
 
 Al final, tu repo (un fork o tu propia copia) debe contener:
 
-- [ ] `specs/00-capstone-brief.md` — idea y caso de uso
-- [ ] `specs/01-requirements.md` — requisitos EARS
-- [ ] `specs/02-design.md` — arquitectura + diagrama + decisiones de IA responsable/seguridad
-- [ ] `specs/03-tasks.md` — plan de tareas (todas marcadas ✓)
-- [ ] Código funcional que invoca Bedrock
-- [ ] `README` de tu proyecto explicando cómo ejecutarlo
-- [ ] Historial de commits limpio (evidencia del flujo EPCC)
+- [x] `specs/00-capstone-brief.md` — idea y caso de uso
+- [x] `specs/01-requirements.md` — requisitos EARS
+- [x] `specs/02-design.md` — arquitectura + diagrama + decisiones de IA responsable/seguridad
+- [x] `specs/03-tasks.md` — plan de tareas (todas marcadas ✓)
+- [x] Código funcional que invoca Bedrock → [`src/hr_assistant.py`](src/hr_assistant.py)
+- [x] `README` de tu proyecto explicando cómo ejecutarlo → [`src/README.md`](src/README.md)
+- [x] Historial de commits limpio (evidencia del flujo EPCC)
 
 Rúbrica detallada y criterios de evaluación: [`specs/00-capstone-brief.md`](specs/00-capstone-brief.md).
 
