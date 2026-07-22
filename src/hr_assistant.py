@@ -1,5 +1,9 @@
 # HR Assistant — Asistente conversacional de RRHH sobre Amazon Bedrock
 
+import os
+import sys
+import time
+
 import boto3
 from botocore.exceptions import ClientError
 
@@ -44,34 +48,49 @@ reporta al correo etica@empresa.com y puede derivar en proceso disciplinario.
 _client = None
 
 
+_THROTTLE_DELAYS = (1, 2, 4)  # segundos de espera entre reintentos por throttling
+
+
 def invoke_bedrock(messages: list) -> str:
     """Invoca la Converse API con el historial completo.
 
     Intenta MODEL_PRIMARY; si no está disponible, reintenta con MODEL_FALLBACK.
-    Retorna el texto de respuesta del modelo.
-    Propaga ClientError para que el caller lo maneje (throttling, errores genéricos).
+    Ante ThrottlingException reintenta hasta 3 veces con backoff exponencial (1s, 2s, 4s).
+    Propaga ClientError si se agotan los reintentos o el error no es recuperable.
     """
     system = [{"text": SYSTEM_PROMPT}]
     inference_cfg = {"maxTokens": MAX_TOKENS, "temperature": TEMPERATURE}
 
     for attempt, model_id in enumerate((MODEL_PRIMARY, MODEL_FALLBACK)):
-        try:
-            response = _client.converse(
-                modelId=model_id,
-                messages=messages,
-                system=system,
-                inferenceConfig=inference_cfg,
-            )
-            if attempt > 0:
-                print(f"[Aviso] Usando modelo alternativo: {model_id}")
-            return response["output"]["message"]["content"][0]["text"]
+        # Reintentos por throttling para este model_id
+        for retry, delay in enumerate((*_THROTTLE_DELAYS, None)):
+            try:
+                response = _client.converse(
+                    modelId=model_id,
+                    messages=messages,
+                    system=system,
+                    inferenceConfig=inference_cfg,
+                )
+                if attempt > 0:
+                    print(f"[Aviso] Usando modelo alternativo: {model_id}")
+                return response["output"]["message"]["content"][0]["text"]
 
-        except ClientError as e:
-            code = e.response["Error"]["Code"]
-            # Solo hace fallback si el modelo no está disponible en la cuenta
-            if code in ("ValidationException", "ResourceNotFoundException") and attempt == 0:
-                continue
-            raise
+            except ClientError as e:
+                code = e.response["Error"]["Code"]
+
+                if code == "ThrottlingException":
+                    if delay is not None:
+                        print(f"[Aviso] Límite de tasa alcanzado, reintentando en {delay}s... ({retry + 1}/3)")
+                        time.sleep(delay)
+                        continue
+                    # Reintentos agotados
+                    raise
+
+                # Fallback a modelo secundario si el primario no está disponible
+                if code in ("ValidationException", "ResourceNotFoundException") and attempt == 0:
+                    break  # sale del loop de reintentos, pasa al siguiente model_id
+
+                raise  # cualquier otro error se propaga al caller
 
 
 DISCLAIMER = (
@@ -85,12 +104,12 @@ DISCLAIMER = (
 
 
 def main():
-    import os
-    import sys
-
-    # Verificar credencial antes de crear el cliente (manejo completo en B3)
     if not os.environ.get("AWS_BEARER_TOKEN_BEDROCK"):
-        print("Error: falta la variable de entorno AWS_BEARER_TOKEN_BEDROCK", file=sys.stderr)
+        print(
+            "Error: falta la variable de entorno AWS_BEARER_TOKEN_BEDROCK.\n"
+            "Configúrala con: export AWS_BEARER_TOKEN_BEDROCK=<tu-token>",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     global _client

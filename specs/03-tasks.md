@@ -22,7 +22,7 @@
 - [x] **B2.** Implementar loop principal del CLI: mostrar disclaimer, leer input, acumular historial, imprimir respuesta; detectar `salir`/`exit` · _(ref: RF-1, RF-2, RF-4, RNF-2, diseño §4)_
   - Criterio: sesión multi-turno funciona; `echo "salir" | python src/hr_assistant.py` termina con código 0; una pregunta de seguimiento obtiene respuesta contextualizada.
 
-- [ ] **B3.** Implementar manejo de errores: credencial ausente (abortar con código 1), throttling (retry con backoff), `ClientError` genérico (imprimir y continuar), entrada vacía (ignorar) · _(ref: RNF-4, diseño §5)_
+- [x] **B3.** Implementar manejo de errores: credencial ausente (abortar con código 1), throttling (retry con backoff), `ClientError` genérico (imprimir y continuar), entrada vacía (ignorar) · _(ref: RNF-4, diseño §5)_
   - Criterio: `AWS_BEARER_TOKEN_BEDROCK= python src/hr_assistant.py` sale con código 1 y mensaje claro.
 
 ## Fase C — IA responsable y seguridad
