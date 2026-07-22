@@ -37,8 +37,20 @@
 
 ## Fase D — Validación y entrega
 
-- [ ] **D1.** Probar los criterios de aceptación de todos los requisitos RF-1 a RF-5 y RNF-1 a RNF-6; documentar resultado en esta tarea · _(ref: 01-requirements.md)_
+- [x] **D1.** Probar los criterios de aceptación de todos los requisitos RF-1 a RF-5 y RNF-1 a RNF-6; documentar resultado en esta tarea · _(ref: 01-requirements.md)_
   - Criterio: cada criterio de aceptación marcado como PASS o FAIL con evidencia.
+  - Resultados (2026-07-22):
+    - RF-1 PASS — respuesta a pregunta RRHH en 2.8–3.6s, sin excepción
+    - RF-2 PASS — pregunta de seguimiento ("3 años → 45 días") contextualizada correctamente
+    - RF-3 PASS — system prompt presente como constante; off-topic deriva a rrhh@empresa.com
+    - RF-4 PASS — `salir` y `exit` terminan con código 0
+    - RF-5 PASS — modelo inválido primario cae a haiku con aviso "[Aviso] Usando modelo alternativo"
+    - RNF-1 PASS — 5/5 invocaciones bajo 30s (promedio 3.1s, máximo 3.6s)
+    - RNF-2 PASS — disclaimer visible antes del primer prompt en cada sesión
+    - RNF-3 PASS — preguntas off-topic reciben derivación exacta, sin alucinaciones
+    - RNF-4 PASS — sin token → mensaje claro + código de salida 1
+    - RNF-5 PASS — grep en archivos rastreados: solo menciones documentales, cero valores reales
+    - RNF-6 PASS — `MAX_TOKENS = 1024` visible en `src/hr_assistant.py:13`
 
 - [ ] **D2.** Documentar costo real observado (tokens usados en las pruebas) y comparar con la estimación de diseño §8 · _(ref: diseño §8)_
   - Criterio: tabla de costo real en `specs/02-design.md` actualizada.
