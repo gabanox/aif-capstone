@@ -60,8 +60,9 @@
   - Criterio: un colaborador nuevo puede correr el proyecto siguiendo solo el README.
   - Resultado (2026-07-22): `src/README.md` creado con instalación, ejecución, ejemplo de sesión, arquitectura y cobertura AIF-C01. Checklist de entregables marcado en `README.md` raíz.
 
-- [ ] **D4.** Revisión final del historial de commits: verificar que cada commit corresponde a una tarea y sigue el formato convencional · _(ref: proceso EPCC)_
+- [x] **D4.** Revisión final del historial de commits: verificar que cada commit corresponde a una tarea y sigue el formato convencional · _(ref: proceso EPCC)_
   - Criterio: `git log --oneline` muestra al menos un commit por tarea completada; ningún commit contiene secretos.
+  - Resultado (2026-07-22): PASS — 10 commits del proyecto, 10/10 en formato convencional `tipo(área): descripción`, 0 secretos reales en diffs, correspondencia 1:1 tarea↔commit verificada.
 
 ---
 
